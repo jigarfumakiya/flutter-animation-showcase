@@ -1,0 +1,230 @@
+{
+  "chats": [
+    {
+      "id": "1",
+      "name": "Alice Johnson",
+      "username": "@alice_j",
+      "lastMessage": "Hey! How are you doing?",
+      "timestamp": "2:30 PM",
+      "unreadCount": 3,
+      "isOnline": true,
+      "avatarColor": "#FF6B6B",
+      "initials": "AJ",
+      "bio": "Software Engineer | Coffee enthusiast ☕\nLove to travel and explore new places 🌍",
+      "coverPhoto": {
+        "color": "#4ECDC4",
+        "gradient": ["#4ECDC4", "#44A08D"]
+      },
+      "phoneNumber": "+1 234 567 8900",
+      "photosCount": 42,
+      "videosCount": 12,
+      "filesCount": 8,
+      "linksCount": 25,
+      "voiceCount": 15
+    },
+    {
+      "id": "2",
+      "name": "Bob Smith",
+      "username": "@bob_smith",
+      "lastMessage": "Sure, let's meet tomorrow!",
+      "timestamp": "Yesterday",
+      "unreadCount": 0,
+      "isOnline": false,
+      "lastSeen": "last seen recently",
+      "avatarColor": "#95E1D3",
+      "initials": "BS",
+      "bio": "Product Designer | UI/UX\nCreating beautiful experiences ✨",
+      "coverPhoto": {
+        "color": "#F38181",
+        "gradient": ["#F38181", "#FCE38A"]
+      },
+      "phoneNumber": "+1 234 567 8901",
+      "photosCount": 28,
+      "videosCount": 5,
+      "filesCount": 15,
+      "linksCount": 40,
+      "voiceCount": 8
+    },
+    {
+      "id": "3",
+      "name": "Carol Martinez",
+      "username": "@carol_m",
+      "lastMessage": "Thanks for your help!",
+      "timestamp": "12:15 PM",
+      "unreadCount": 1,
+      "isOnline": true,
+      "avatarColor": "#A8E6CF",
+      "initials": "CM",
+      "bio": "Marketing Manager | Content Creator\nPassionate about digital storytelling 📱",
+      "coverPhoto": {
+        "color": "#FF8B94",
+        "gradient": ["#FF8B94", "#FFAAA5"]
+      },
+      "phoneNumber": "+1 234 567 8902",
+      "photosCount": 65,
+      "videosCount": 20,
+      "filesCount": 12,
+      "linksCount": 55,
+      "voiceCount": 22
+    },
+    {
+      "id": "4",
+      "name": "David Chen",
+      "username": "@david_chen",
+      "lastMessage": "Check out this link",
+      "timestamp": "11:45 AM",
+      "unreadCount": 0,
+      "isOnline": false,
+      "lastSeen": "last seen 2 hours ago",
+      "avatarColor": "#FFD3B6",
+      "initials": "DC",
+      "bio": "Data Scientist | AI Enthusiast\nBuilding the future with machine learning 🤖",
+      "coverPhoto": {
+        "color": "#A8D8EA",
+        "gradient": ["#A8D8EA", "#AA96DA"]
+      },
+      "phoneNumber": "+1 234 567 8903",
+      "photosCount": 15,
+      "videosCount": 3,
+      "filesCount": 45,
+      "linksCount": 80,
+      "voiceCount": 5
+    },
+    {
+      "id": "5",
+      "name": "Emma Wilson",
+      "username": "@emma_w",
+      "lastMessage": "See you at the meeting!",
+      "timestamp": "10:30 AM",
+      "unreadCount": 5,
+      "isOnline": true,
+      "avatarColor": "#FCBAD3",
+      "initials": "EW",
+      "bio": "Project Manager | Agile Coach\nHelping teams deliver amazing products 🚀",
+      "coverPhoto": {
+        "color": "#FFFFD2",
+        "gradient": ["#FFFFD2", "#A0CED9"]
+      },
+      "phoneNumber": "+1 234 567 8904",
+      "photosCount": 38,
+      "videosCount": 8,
+      "filesCount": 30,
+      "linksCount": 45,
+      "voiceCount": 18
+    },
+    {
+      "id": "6",
+      "name": "Frank Lee",
+      "username": "@frank_lee",
+      "lastMessage": "Great presentation today!",
+      "timestamp": "Yesterday",
+      "unreadCount": 0,
+      "isOnline": false,
+      "lastSeen": "last seen yesterday",
+      "avatarColor": "#B4A7D6",
+      "initials": "FL",
+      "bio": "Backend Developer | Cloud Architecture\nScaling systems to millions of users ☁️",
+      "coverPhoto": {
+        "color": "#FEC8D8",
+        "gradient": ["#FEC8D8", "#FFDFD3"]
+      },
+      "phoneNumber": "+1 234 567 8905",
+      "photosCount": 22,
+      "videosCount": 7,
+      "filesCount": 25,
+      "linksCount": 35,
+      "voiceCount": 12
+    },
+    {
+      "id": "7",
+      "name": "Grace Taylor",
+      "username": "@grace_t",
+      "lastMessage": "Can you send me the files?",
+      "timestamp": "9:20 AM",
+      "unreadCount": 2,
+      "isOnline": true,
+      "avatarColor": "#C7CEEA",
+      "initials": "GT",
+      "bio": "UX Researcher | Human-Centered Design\nUnderstanding users to create better products 💡",
+      "coverPhoto": {
+        "color": "#FFDAC1",
+        "gradient": ["#FFDAC1", "#FF9AA2"]
+      },
+      "phoneNumber": "+1 234 567 8906",
+      "photosCount": 50,
+      "videosCount": 15,
+      "filesCount": 18,
+      "linksCount": 60,
+      "voiceCount": 25
+    },
+    {
+      "id": "8",
+      "name": "Henry Kim",
+      "username": "@henry_kim",
+      "lastMessage": "Sounds good!",
+      "timestamp": "Monday",
+      "unreadCount": 0,
+      "isOnline": false,
+      "lastSeen": "last seen 3 days ago",
+      "avatarColor": "#B5EAD7",
+      "initials": "HK",
+      "bio": "Mobile Developer | Flutter Expert\nCrafting beautiful cross-platform apps 📱✨",
+      "coverPhoto": {
+        "color": "#C7CEEA",
+        "gradient": ["#C7CEEA", "#B5EAD7"]
+      },
+      "phoneNumber": "+1 234 567 8907",
+      "photosCount": 35,
+      "videosCount": 10,
+      "filesCount": 20,
+      "linksCount": 30,
+      "voiceCount": 14
+    },
+    {
+      "id": "9",
+      "name": "Iris Anderson",
+      "username": "@iris_a",
+      "lastMessage": "Happy birthday! 🎉",
+      "timestamp": "Sunday",
+      "unreadCount": 0,
+      "isOnline": false,
+      "lastSeen": "last seen 5 days ago",
+      "avatarColor": "#FFB6C1",
+      "initials": "IA",
+      "bio": "Graphic Designer | Visual Artist\nBringing ideas to life through design 🎨",
+      "coverPhoto": {
+        "color": "#FFD1DC",
+        "gradient": ["#FFD1DC", "#FFA6C1"]
+      },
+      "phoneNumber": "+1 234 567 8908",
+      "photosCount": 120,
+      "videosCount": 30,
+      "filesCount": 10,
+      "linksCount": 20,
+      "voiceCount": 8
+    },
+    {
+      "id": "10",
+      "name": "Jack Roberts",
+      "username": "@jack_r",
+      "lastMessage": "Let me know when you're free",
+      "timestamp": "Saturday",
+      "unreadCount": 0,
+      "isOnline": false,
+      "lastSeen": "last seen a week ago",
+      "avatarColor": "#87CEEB",
+      "initials": "JR",
+      "bio": "DevOps Engineer | Kubernetes\nAutomating all the things 🤖⚙️",
+      "coverPhoto": {
+        "color": "#98D8C8",
+        "gradient": ["#98D8C8", "#6BC5D2"]
+      },
+      "phoneNumber": "+1 234 567 8909",
+      "photosCount": 18,
+      "videosCount": 4,
+      "filesCount": 50,
+      "linksCount": 70,
+      "voiceCount": 6
+    }
+  ]
+}
