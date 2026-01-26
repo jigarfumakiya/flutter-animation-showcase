@@ -54,7 +54,6 @@ class TelegramProfileAnimation extends StatefulWidget {
 class _TelegramProfileAnimationState extends State<TelegramProfileAnimation> {
   bool _isExpandedState = false;
   double _titleCollapseProgress = 0.0;
-  final ScrollController _scrollController = ScrollController();
 
   /// Handles height changes to determine when to exit expanded state
   void _onHeightChanged(double currentHeight, double expandedHeight) {
@@ -104,7 +103,6 @@ class _TelegramProfileAnimationState extends State<TelegramProfileAnimation> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: CustomScrollView(
-        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
           // Header
@@ -453,9 +451,7 @@ class _ProfileHeader extends StatelessWidget {
     // Smoothly pin title at collapsed position when it reaches there
     // title.y decreases as we scroll up, once it goes below collapsedY, pin it
     return title.y < title.collapsedY ? title.collapsedY : title.y;
-    // return collapseProgress > _ProfileConstants.titleCollapseThreshold
-    //     ? title.collapsedY
-    //     : title.y;
+
   }
 
   double _calculateSubtitleTop(double collapseProgress, _TitleData title) {
