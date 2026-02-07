@@ -1,5 +1,42 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
+
+// ============================================================
+// CONTROLLER
+// ============================================================
+
+/// Controller to manage the state of TelegramAppBar and sync with action buttons
+class TelegramAppBarController extends ChangeNotifier {
+  bool _isExpandedState = false;
+  double _shrinkProgress = 0.0;
+
+  /// Whether the app bar is in full expanded state
+  bool get isExpandedState => _isExpandedState;
+
+  /// Progress of button shrinking (0.0 = full size, 1.0 = hidden)
+  double get shrinkProgress => _shrinkProgress;
+
+  void _updateExpandedState(bool isExpanded) {
+    if (_isExpandedState != isExpanded) {
+      _isExpandedState = isExpanded;
+      notifyListeners();
+    }
+  }
+
+  void _updateShrinkProgress(double progress) {
+    print(
+      "🟢 CONTROLLER: Received progress=$progress (current=$_shrinkProgress)",
+    );
+    if (_shrinkProgress != progress) {
+      _shrinkProgress = progress;
+      print("🟢 CONTROLLER: Updated and notifying listeners");
+      notifyListeners();
+    } else {
+      print("🟢 CONTROLLER: Same value, skipping update");
+    }
+  }
+}
 
 // ============================================================
 // PUBLIC API
@@ -55,6 +92,9 @@ class SliverTelegramAppBar extends StatefulWidget {
   /// Configuration for all animation and layout parameters
   final TelegramAppBarConfig config;
 
+  /// Controller to sync state with action buttons (optional)
+  final TelegramAppBarController? controller;
+
   /// Action buttons shown in the expanded state
   final List<TelegramActionButton>? actions;
 
@@ -83,6 +123,7 @@ class SliverTelegramAppBar extends StatefulWidget {
     this.fullExpandedHeight,
     this.expandedStateHeightRatio = 0.65,
     this.config = const TelegramAppBarConfig(),
+    this.controller,
     this.actions,
     this.leading,
     this.onBackPressed,
@@ -179,7 +220,7 @@ class TelegramAppBarConfig {
     this.buttonSpacing = 8.0,
 
     // Animation
-    this.fastAnimation = const Duration(milliseconds: 40),
+    this.fastAnimation = const Duration(milliseconds: 50),
     this.mediumAnimation = const Duration(milliseconds: 100),
 
     // Threshold
@@ -188,10 +229,11 @@ class TelegramAppBarConfig {
 
   // Calculated values
   double get avatarMaxStretch => avatarSize * avatarMaxStretchRatio;
+
   double get buttonInnerHeight => buttonHeight + 4.0;
+
   double get buttonClipRadius => buttonRadius + 6.0;
 }
-
 
 // ============================================================
 // IMPLEMENTATION
@@ -200,23 +242,47 @@ class TelegramAppBarConfig {
 class _SliverTelegramAppBarState extends State<SliverTelegramAppBar> {
   bool _isExpandedState = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _updateController();
+  }
+
+  @override
+  void didUpdateWidget(SliverTelegramAppBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      _updateController();
+    }
+  }
+
+  void _updateController() {
+    widget.controller?._updateExpandedState(_isExpandedState);
+  }
+
   void _onHeightChanged(double currentHeight, double expandedHeight) {
     if (!_isExpandedState) return;
 
     final threshold = expandedHeight * widget.config.expandedExitThreshold;
     final thresholdHeight = expandedHeight - threshold;
-
     if (currentHeight <= thresholdHeight) {
       setState(() => _isExpandedState = false);
+      widget.controller?._updateExpandedState(false);
     }
   }
 
   void _onStretchTrigger() {
+    print('_onStretchTrigger');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_isExpandedState) {
         setState(() => _isExpandedState = true);
+        widget.controller?._updateExpandedState(true);
       }
     });
+  }
+
+  void _onTitleProgress(double progress) {
+    widget.controller?._updateShrinkProgress(progress);
   }
 
   @override
@@ -228,7 +294,8 @@ class _SliverTelegramAppBarState extends State<SliverTelegramAppBar> {
 
     final collapsedHeight = widget.collapsedHeight + statusBarHeight;
     final defaultExpandedHeight = widget.expandedHeight + statusBarHeight;
-    final fullExpandedStateHeight = widget.fullExpandedHeight ??
+    final fullExpandedStateHeight =
+        widget.fullExpandedHeight ??
         (screenHeight * widget.expandedStateHeightRatio);
 
     final currentExpandedHeight = _isExpandedState
@@ -244,7 +311,8 @@ class _SliverTelegramAppBarState extends State<SliverTelegramAppBar> {
       toolbarHeight: widget.collapsedHeight,
       surfaceTintColor: Colors.transparent,
       backgroundColor: widget.backgroundColor ?? Colors.black,
-      leading: const SizedBox.shrink(), // We handle leading in flexibleSpace
+      leading: const SizedBox.shrink(),
+      // We handle leading in flexibleSpace
       flexibleSpace: _ProfileFlexibleSpace(
         title: widget.title,
         subtitle: widget.subtitle,
@@ -263,12 +331,12 @@ class _SliverTelegramAppBarState extends State<SliverTelegramAppBar> {
         expandedStateHeight: fullExpandedStateHeight,
         isExpandedState: _isExpandedState,
         onHeightChanged: _onHeightChanged,
+        onTitleProgress: _onTitleProgress,
         config: widget.config,
       ),
     );
   }
 }
-
 
 // ============================================================
 // FLEXIBLE SPACE
@@ -292,6 +360,7 @@ class _ProfileFlexibleSpace extends StatefulWidget {
   final double expandedStateHeight;
   final bool isExpandedState;
   final void Function(double height, double maxHeight) onHeightChanged;
+  final void Function(double progress) onTitleProgress;
   final TelegramAppBarConfig config;
 
   const _ProfileFlexibleSpace({
@@ -312,6 +381,7 @@ class _ProfileFlexibleSpace extends StatefulWidget {
     required this.expandedStateHeight,
     required this.isExpandedState,
     required this.onHeightChanged,
+    required this.onTitleProgress,
     required this.config,
   });
 
@@ -351,6 +421,7 @@ class _ProfileFlexibleSpaceState extends State<_ProfileFlexibleSpace> {
           maxHeight: widget.maxHeight,
           defaultMaxHeight: widget.defaultMaxHeight,
           isExpandedState: widget.isExpandedState,
+          onTitleProgress: widget.onTitleProgress,
           config: widget.config,
         );
       },
@@ -379,6 +450,7 @@ class _ProfileHeader extends StatelessWidget {
   final double maxHeight;
   final double defaultMaxHeight;
   final bool isExpandedState;
+  final void Function(double progress) onTitleProgress;
   final TelegramAppBarConfig config;
 
   const _ProfileHeader({
@@ -398,6 +470,7 @@ class _ProfileHeader extends StatelessWidget {
     required this.maxHeight,
     required this.defaultMaxHeight,
     required this.isExpandedState,
+    required this.onTitleProgress,
     required this.config,
   });
 
@@ -408,6 +481,9 @@ class _ProfileHeader extends StatelessWidget {
     final progress = _calculateProgress();
     final avatar = _calculateAvatar(progress);
     final titleData = _calculateTitle(progress, avatar);
+
+    // Notify title progress for button shrinking
+    _notifyTitleProgress(titleData.collapsedY, titleData.y);
 
     final avatarLeft = isExpandedState ? 0.0 : avatar.left;
     final avatarTop = isExpandedState ? 0.0 : avatar.top;
@@ -476,14 +552,11 @@ class _ProfileHeader extends StatelessWidget {
   }
 
   Widget _buildImage() {
-    final errorBuilder = imageErrorBuilder ??
-            (_, __, ___) => Container(
+    final errorBuilder =
+        imageErrorBuilder ??
+        (_, __, ___) => Container(
           color: Colors.grey.shade800,
-          child: const Icon(
-            Icons.person,
-            color: Colors.white54,
-            size: 40,
-          ),
+          child: const Icon(Icons.person, color: Colors.white54, size: 40),
         );
 
     if (isNetworkImage) {
@@ -503,11 +576,7 @@ class _ProfileHeader extends StatelessWidget {
 
   Widget _buildLeading(BuildContext context) {
     if (leading != null) {
-      return Positioned(
-        left: 8,
-        top: statusBarHeight + 8,
-        child: leading!,
-      );
+      return Positioned(left: 8, top: statusBarHeight + 8, child: leading!);
     }
 
     return Positioned(
@@ -557,25 +626,32 @@ class _ProfileHeader extends StatelessWidget {
 
     double size;
     if (progress.isStretching) {
-      size = config.avatarSize +
-          (progress.stretchAmount * config.avatarStretchFactor)
-              .clamp(0.0, config.avatarMaxStretch);
+      size =
+          config.avatarSize +
+          (progress.stretchAmount * config.avatarStretchFactor).clamp(
+            0.0,
+            config.avatarMaxStretch,
+          );
     } else {
-      size = _lerp(config.avatarSize, config.avatarCollapsedSize, shrinkProgress);
+      size = _lerp(
+        config.avatarSize,
+        config.avatarCollapsedSize,
+        shrinkProgress,
+      );
     }
 
     final centerX = screenWidth / 2;
     final backButtonBottom = statusBarHeight + 8 + 20;
     final baseY = backButtonBottom + config.avatarSize / 2;
-    final stretchOffsetY =
-    progress.isStretching ? progress.stretchAmount * 0.2 : 0.0;
+    final stretchOffsetY = progress.isStretching
+        ? progress.stretchAmount * 0.2
+        : 0.0;
     final expandedCenterY = baseY + stretchOffsetY;
 
     // Calculate collapsed Y position relative to toolbar
-    final avatarCollapsedY = -config.avatarCollapsedSize * 0.7;
+    final avatarCollapsedY = -40.0;
 
-    final centerY =
-    _lerp(expandedCenterY, avatarCollapsedY, progress.collapse);
+    final centerY = _lerp(expandedCenterY, avatarCollapsedY, progress.collapse);
 
     return _AvatarData(
       size: size,
@@ -609,8 +685,16 @@ class _ProfileHeader extends StatelessWidget {
         progress.eased,
       );
 
-      final avatarToTitleGap = _lerp(4.0, 20.0, progress.collapse.clamp(0.0, 1.0));
-      final titleToSubtitleGap = _lerp(2.0, 8.0, progress.collapse.clamp(0.0, 1.0));
+      final avatarToTitleGap = _lerp(
+        4.0,
+        20.0,
+        progress.collapse.clamp(0.0, 1.0),
+      );
+      final titleToSubtitleGap = _lerp(
+        2.0,
+        8.0,
+        progress.collapse.clamp(0.0, 1.0),
+      );
 
       titleY = avatarBottomY + avatarToTitleGap;
       subtitleY = titleY + titleSize + titleToSubtitleGap;
@@ -632,7 +716,7 @@ class _ProfileHeader extends StatelessWidget {
     if (isExpandedState) {
       return config.expandedPadding;
     }
-    return (screenWidth - (titleSize * title.length * 0.75)) / 2;
+    return (screenWidth - (titleSize * title.length * 0.55)) / 2;
   }
 
   double _calculateTitleTop(double collapseProgress, _TitleData titleData) {
@@ -648,6 +732,21 @@ class _ProfileHeader extends StatelessWidget {
     return titleData.subtitleY < collapsedSubY
         ? collapsedSubY
         : titleData.subtitleY;
+  }
+
+  void _notifyTitleProgress(double collapsedY, double titleY) {
+    final progress = ((collapsedY - (titleY + statusBarHeight)) / 15.0).clamp(
+      0.0,
+      1.0,
+    );
+
+    print(
+      "🔵 NOTIFY: collapsedY=$collapsedY, titleY=$titleY, statusBar=$statusBarHeight, progress=$progress",
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      onTitleProgress(progress);
+    });
   }
 }
 
@@ -782,44 +881,122 @@ class _SubtitleText extends StatelessWidget {
 }
 
 // ============================================================
+// ACTION BUTTONS SLIVER (for use outside appbar)
+// ============================================================
+
+/// A sliver widget that displays action buttons that shrink as the appbar collapses.
+/// Use this in your CustomScrollView after the SliverTelegramAppBar when you want
+/// buttons to show in the default/collapsed states (not in expanded state).
+///
+/// Example:
+/// ```dart
+/// final controller = TelegramAppBarController();
+///
+/// CustomScrollView(
+///   slivers: [
+///     SliverTelegramAppBar(controller: controller, ...),
+///     SliverTelegramActionButtons(controller: controller, ...),
+///   ],
+/// )
+/// ```
+class SliverTelegramActionButtons extends StatelessWidget {
+  final TelegramAppBarController controller;
+  final List<TelegramActionButton> actions;
+  final TelegramAppBarConfig config;
+
+  const SliverTelegramActionButtons({
+    super.key,
+    required this.controller,
+    required this.actions,
+    this.config = const TelegramAppBarConfig(),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        print(
+          "🟡 SLIVER: isExpanded=${controller.isExpandedState}, shrinkProgress=${controller.shrinkProgress}",
+        );
+
+        // Hide when in expanded state
+        if (controller.isExpandedState) {
+          return const SliverToBoxAdapter(child: SizedBox.shrink());
+        }
+
+        return SliverToBoxAdapter(
+          child: _ActionButtons(
+            actions: actions,
+            isExpandedState: false,
+            shrinkProgress: controller.shrinkProgress,
+            config: config,
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ============================================================
 // ACTION BUTTONS
 // ============================================================
 
 class _ActionButtons extends StatelessWidget {
   final List<TelegramActionButton> actions;
   final bool isExpandedState;
+  final double shrinkProgress;
   final TelegramAppBarConfig config;
 
   const _ActionButtons({
     required this.actions,
     required this.isExpandedState,
+    this.shrinkProgress = 0.0,
     required this.config,
   });
 
+  double _lerp(double a, double b, double t) => a + (b - a) * t;
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: config.horizontalPadding,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: actions
-            .map(
-              (action) => _ActionButton(
-            config: action,
-            isExpandedState: isExpandedState,
-            appBarConfig: config,
+    final t = shrinkProgress.clamp(0.0, 1.0);
+
+    print(
+      "🔴 BUTTONS: shrinkProgress=$shrinkProgress, isExpanded=$isExpandedState",
+    );
+
+    final height = _lerp(config.buttonHeight, 0.0, t);
+    final paddingV = _lerp(10.0, 0.0, t);
+    final iconSize = _lerp(25.0, 0.0, t);
+    final fontSize = _lerp(10.0, 0.0, t);
+    final radius = _lerp(config.buttonRadius, 0.0, t);
+
+    return ClipRect(
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: config.horizontalPadding),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: actions
+                .map(
+                  (action) => _ActionButton(
+                    config: action,
+                    isExpandedState: isExpandedState,
+                    appBarConfig: config,
+                    iconSize: iconSize,
+                    fontSize: fontSize,
+                    paddingV: paddingV,
+                    radius: radius,
+                  ),
+                )
+                .expand(
+                  (widget) => [widget, SizedBox(width: config.buttonSpacing)],
+                )
+                .take(actions.length * 2 - 1)
+                .toList(),
           ),
-        )
-            .expand(
-              (widget) => [
-            widget,
-            SizedBox(width: config.buttonSpacing),
-          ],
-        )
-            .take(actions.length * 2 - 1)
-            .toList(),
+        ),
       ),
     );
   }
@@ -829,16 +1006,27 @@ class _ActionButton extends StatelessWidget {
   final TelegramActionButton config;
   final bool isExpandedState;
   final TelegramAppBarConfig appBarConfig;
+  final double? iconSize;
+  final double? fontSize;
+  final double? paddingV;
+  final double? radius;
 
   const _ActionButton({
     required this.config,
     required this.isExpandedState,
     required this.appBarConfig,
+    this.iconSize,
+    this.fontSize,
+    this.paddingV,
+    this.radius,
   });
 
   @override
   Widget build(BuildContext context) {
     final color = isExpandedState ? Colors.white : Colors.blue;
+    final effectiveIconSize = iconSize ?? 25.0;
+    final effectiveFontSize = fontSize ?? 10.0;
+    final effectiveRadius = radius ?? appBarConfig.buttonRadius;
 
     final child = Container(
       width: appBarConfig.buttonWidth,
@@ -847,28 +1035,33 @@ class _ActionButton extends StatelessWidget {
         color: isExpandedState
             ? Colors.white.withOpacity(0.10)
             : Colors.grey.shade900,
-        borderRadius: BorderRadius.circular(appBarConfig.buttonRadius),
+        borderRadius: BorderRadius.circular(effectiveRadius),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: config.onPressed,
-          borderRadius: BorderRadius.circular(appBarConfig.buttonRadius),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(config.icon, size: 25, color: color),
-              const SizedBox(height: 4),
-              Text(
-                config.label,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: color,
-                  fontWeight:
-                  isExpandedState ? FontWeight.w500 : FontWeight.normal,
-                ),
-              ),
-            ],
+          borderRadius: BorderRadius.circular(effectiveRadius),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (effectiveIconSize > 0)
+                  Icon(config.icon, size: effectiveIconSize, color: color),
+                if (effectiveFontSize > 0)
+                  Text(
+                    config.label,
+                    style: TextStyle(
+                      fontSize: effectiveFontSize,
+                      color: color,
+                      fontWeight: isExpandedState
+                          ? FontWeight.w500
+                          : FontWeight.normal,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -878,289 +1071,13 @@ class _ActionButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(appBarConfig.buttonClipRadius),
       child: isExpandedState
           ? BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: appBarConfig.buttonBlurSigma,
-          sigmaY: appBarConfig.buttonBlurSigma,
-        ),
-        child: child,
-      )
+              filter: ImageFilter.blur(
+                sigmaX: appBarConfig.buttonBlurSigma,
+                sigmaY: appBarConfig.buttonBlurSigma,
+              ),
+              child: child,
+            )
           : child,
     );
   }
 }
-
-
-// import 'package:flutter/foundation.dart';
-// import 'package:flutter/material.dart';
-//
-// class SliverTelegramAppBar extends StatefulWidget {
-//   final AsyncCallback? onStretchTrigger;
-//   final String title;
-//   final String? subtitle;
-//   final Widget? backButton;
-//   final double expandedHeight;
-//   final double collapsedHeight;
-//   final double unCollapsedHeight;
-//
-//   /// defaultExpandedHeightBase is for height for default state when user are not scrolling
-//   final double defaultExpandedHeightBase;
-//
-//   const SliverTelegramAppBar({
-//     super.key,
-//     required this.title,
-//     this.subtitle,
-//     this.backButton,
-//     this.onStretchTrigger,
-//     required this.expandedHeight,
-//     required this.collapsedHeight,
-//     required this.unCollapsedHeight,
-//     required this.defaultExpandedHeightBase,
-//   });
-//
-//   @override
-//   State<SliverTelegramAppBar> createState() => _SliverTelegramAppBarState();
-// }
-//
-// class _SliverTelegramAppBarState extends State<SliverTelegramAppBar> {
-//   bool _isExpandedState = false;
-//   double _titleCollapseProgress = 0.0;
-//
-//   double _lerp(double a, double b, double t) => a + (b - a) * t;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final mediaQuery = MediaQuery.of(context);
-//     final statusBarHeight = mediaQuery.padding.top;
-//     final screenWidth = mediaQuery.size.width;
-//     final screenHeight = mediaQuery.size.height;
-//
-//     final collapsedHeightWithStatusBar =
-//         widget.collapsedHeight + statusBarHeight;
-//     final currentExpandedHeight = _isExpandedState
-//         ? widget.expandedHeight
-//         : (widget.defaultExpandedHeightBase + statusBarHeight);
-//
-//     return SliverAppBar(
-//       pinned: true,
-//       stretch: true,
-//       onStretchTrigger: widget.onStretchTrigger,
-//       expandedHeight: currentExpandedHeight,
-//       collapsedHeight: widget.collapsedHeight,
-//       toolbarHeight: widget.collapsedHeight,
-//       surfaceTintColor: Colors.transparent,
-//       backgroundColor: Colors.black,
-//       flexibleSpace: TelegramAppBarFlexibleSpace(
-//         statusBarHeight: statusBarHeight,
-//         screenWidth: screenWidth,
-//         minHeight: collapsedHeightWithStatusBar,
-//         maxHeight: currentExpandedHeight,
-//         defaultMaxHeight: defaultExpandedHeight,
-//         expandedStateHeight: expandedStateHeight,
-//         isExpandedState: _isExpandedState,
-//         onHeightChanged: _onHeightChanged,
-//         onTitleProgress: _onTitleProgress,
-//       ),
-//     );
-//   }
-// }
-//
-// class TelegramAppBarFlexibleSpace extends StatefulWidget {
-//   const TelegramAppBarFlexibleSpace({
-//     super.key,
-//     required this.maxHeight,
-//     required this.minHeight,
-//   });
-//
-//   final double maxHeight;
-//   final double minHeight;
-//
-//   @override
-//   State<TelegramAppBarFlexibleSpace> createState() =>
-//       _TelegramAppBarFlexibleSpaceState();
-// }
-//
-// class _TelegramAppBarFlexibleSpaceState
-//     extends State<TelegramAppBarFlexibleSpace> {
-//   double _lerp(double a, double b, double t) => a + (b - a) * t;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return LayoutBuilder(
-//       builder: (context, constraints) {
-//         // Track height changes when expanded
-//         final currentHeight = constraints.maxHeight;
-//         final progress = _calculateProgress();
-//         final avatar = _calculateAvatar(progress);
-//         final title = _calculateTitle(progress, avatar);
-//
-//         return Stack();
-//       },
-//     );
-//   }
-//
-//   // -------------------- Calculations --------------------
-//
-//   _ProgressData _calculateProgress() {
-//     final maxHeight = widget.maxHeight;
-//     final minHeight = widget.minHeight;
-//     final isStretching = currentHeight > maxHeight;
-//     final stretchAmount = isStretching ? currentHeight - maxHeight : 0.0;
-//
-//     final collapseRange = defaultMaxHeight - minHeight;
-//     final collapse = isStretching
-//         ? 0.0
-//         : ((defaultMaxHeight - currentHeight) / collapseRange).clamp(0.0, 2.0);
-//
-//     final eased = Curves.easeInOut.transform(collapse.clamp(0.0, 1.0));
-//
-//     return _ProgressData(
-//       isStretching: isStretching,
-//       stretchAmount: stretchAmount,
-//       collapse: collapse,
-//       eased: eased,
-//     );
-//   }
-//
-//   _AvatarData _calculateAvatar(_ProgressData progress) {
-//     final shrinkProgress = Curves.easeOut.transform(
-//       (progress.collapse * _ProfileConstants.avatarShrinkFactor).clamp(
-//         0.0,
-//         1.0,
-//       ),
-//     );
-//
-//     // Size
-//     double size;
-//     if (progress.isStretching) {
-//       size =
-//           _ProfileConstants.avatarSize +
-//           (progress.stretchAmount * _ProfileConstants.avatarStretchFactor)
-//               .clamp(0.0, _ProfileConstants.avatarMaxStretch);
-//     } else {
-//       size = _lerp(_ProfileConstants.avatarSize, 35.0, shrinkProgress);
-//     }
-//
-//     // Position
-//     final centerX = screenWidth / 2;
-//     final backButtonBottom = statusBarHeight + 8 + 20;
-//     final baseY = backButtonBottom + _ProfileConstants.avatarSize / 2;
-//     final stretchOffsetY = progress.isStretching
-//         ? progress.stretchAmount * 0.2
-//         : 0.0;
-//     final expandedCenterY = baseY + stretchOffsetY;
-//
-//     final centerY = _lerp(
-//       expandedCenterY,
-//       _ProfileConstants.avatarCollapsedY,
-//       progress.collapse,
-//     );
-//
-//     return _AvatarData(
-//       size: size,
-//       left: centerX - size / 2,
-//       top: centerY - size / 2,
-//       centerY: centerY,
-//     );
-//   }
-//
-//   _TitleData _calculateTitle(_ProgressData progress, _AvatarData avatar) {
-//     final avatarBottomY = avatar.centerY + avatar.size / 2;
-//
-//     final toolbarCenterY =
-//         statusBarHeight + (_ProfileConstants.collapsedHeight / 2);
-//     final collapsedTitleY =
-//         toolbarCenterY - 8; // Slight offset for visual balance
-//
-//     double titleY, titleSize, subtitleY, subtitleSize;
-//
-//     if (isExpandedState) {
-//       titleSize = _ProfileConstants.titleSizeExpanded;
-//       subtitleSize = _ProfileConstants.subtitleSizeExpanded;
-//       titleY = currentHeight - 140;
-//       subtitleY = titleY + titleSize + 8.0;
-//     } else {
-//       titleSize = _lerp(
-//         _ProfileConstants.titleSizeDefault,
-//         _ProfileConstants.titleSizeCollapsed,
-//         progress.eased,
-//       );
-//       subtitleSize = _lerp(
-//         _ProfileConstants.subtitleSizeDefault,
-//         _ProfileConstants.subtitleSizeCollapsed,
-//         progress.eased,
-//       );
-//
-//       final avatarToTitleGap = _lerp(
-//         4.0,
-//         20.0,
-//         progress.collapse.clamp(0.0, 1.0),
-//       );
-//       final titleToSubtitleGap = _lerp(
-//         2.0,
-//         8.0,
-//         progress.collapse.clamp(0.0, 1.0),
-//       );
-//
-//       titleY = avatarBottomY + avatarToTitleGap;
-//       subtitleY = titleY + titleSize + titleToSubtitleGap;
-//     }
-//
-//     // final collapsedTitleY = statusBarHeight + 18;
-//     final buttonsY = subtitleY + subtitleSize + 16;
-//
-//     return _TitleData(
-//       y: titleY,
-//       size: titleSize,
-//       subtitleY: subtitleY,
-//       subtitleSize: subtitleSize,
-//       collapsedY: collapsedTitleY,
-//       buttonsY: buttonsY,
-//     );
-//   }
-// }
-//
-// class _ProgressData {
-//   final bool isStretching;
-//   final double stretchAmount;
-//   final double collapse;
-//   final double eased;
-//
-//   const _ProgressData({
-//     required this.isStretching,
-//     required this.stretchAmount,
-//     required this.collapse,
-//     required this.eased,
-//   });
-// }
-//
-// class _AvatarData {
-//   final double size;
-//   final double left;
-//   final double top;
-//   final double centerY;
-//
-//   const _AvatarData({
-//     required this.size,
-//     required this.left,
-//     required this.top,
-//     required this.centerY,
-//   });
-// }
-//
-// class _TitleData {
-//   final double y;
-//   final double size;
-//   final double subtitleY;
-//   final double subtitleSize;
-//   final double collapsedY;
-//   final double buttonsY;
-//
-//   const _TitleData({
-//     required this.y,
-//     required this.size,
-//     required this.subtitleY,
-//     required this.subtitleSize,
-//     required this.collapsedY,
-//     required this.buttonsY,
-//   });
-// }
