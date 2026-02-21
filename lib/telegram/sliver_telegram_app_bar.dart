@@ -272,7 +272,6 @@ class _SliverTelegramAppBarState extends State<SliverTelegramAppBar> {
   }
 
   void _onStretchTrigger() {
-    print('_onStretchTrigger');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_isExpandedState) {
         setState(() => _isExpandedState = true);

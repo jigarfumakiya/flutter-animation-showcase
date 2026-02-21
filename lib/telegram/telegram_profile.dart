@@ -20,15 +20,13 @@ class _TelegramProfileState extends State<TelegramProfile> {
         slivers: [
           SliverTelegramAppBar(
             controller: controller,
-            config: TelegramAppBarConfig(
-
-            ),
+            config: TelegramAppBarConfig(),
             title: 'Channel',
             subtitle: '974,652 subscribers',
             imageUrl: 'https://picsum.photos/800/800',
             isNetworkImage: true,
             collapsedHeight: 56.0,
-            expandedHeight: 185.0,
+            expandedHeight: 180.0,
             expandedStateHeightRatio: 0.5,
             actions: [
               TelegramActionButton(
@@ -40,7 +38,7 @@ class _TelegramProfileState extends State<TelegramProfile> {
               TelegramActionButton(icon: Icons.more_horiz, label: 'more'),
             ],
           ),
-
+          const SliverToBoxAdapter(child: SizedBox(height: 30)),
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
           SliverTelegramActionButtons(
@@ -55,13 +53,8 @@ class _TelegramProfileState extends State<TelegramProfile> {
               TelegramActionButton(icon: Icons.more_horiz, label: 'more'),
             ],
           ),
-
           SliverToBoxAdapter(child: descriptionCard()),
-
-          // Tabs
           SliverToBoxAdapter(child: _TabsSection()),
-
-          // Gift grid
           _GiftGrid(),
 
           // Bottom spacing
@@ -118,6 +111,53 @@ class _TelegramProfileState extends State<TelegramProfile> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TabsSection extends StatelessWidget {
+  const _TabsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade900,
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _tap(text: 'Gifts 💝💝🎁', isSelected: true),
+              _tap(text: 'Media', isSelected: false),
+              _tap(text: 'Links', isSelected: false),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _tap({required String text, required bool isSelected}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: BoxDecoration(
+        color: isSelected ? Colors.grey.shade800 : Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: isSelected ? Colors.white : Colors.grey.shade400,
+          fontSize: 14,
+          fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
         ),
       ),
     );
@@ -201,53 +241,6 @@ class _GiftItem extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TabsSection extends StatelessWidget {
-  const _TabsSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      child: Center(
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade900,
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _tap(text: 'Gifts 💝💝🎁', isSelected: true),
-              _tap(text: 'Media', isSelected: false),
-              _tap(text: 'Links', isSelected: false),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _tap({required String text, required bool isSelected}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.grey.shade800 : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: isSelected ? Colors.white : Colors.grey.shade400,
-          fontSize: 14,
-          fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-        ),
       ),
     );
   }
