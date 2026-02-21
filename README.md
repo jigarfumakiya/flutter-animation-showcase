@@ -1,16 +1,44 @@
-# flutter_animation_showcase
+# Flutter Animation Showcase
 
-A new Flutter project.
+A collection of beautifully crafted animations from popular apps, recreated in Flutter.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## Telegram Profile Animation
 
-A few resources to get you started if this is your first Flutter project:
+A pixel-perfect recreation of Telegram's profile header animation featuring smooth transitions between collapsed, expanded, and full-screen states.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+<p align="center">
+  <img src="assets/previews/telegram_profile.gif" width="300" alt="Telegram Profile Animation"/>
+</p>
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Usage
+
+```dart
+import 'package:flutter_animation_showcase/telegram/sliver_telegram_app_bar.dart';
+
+CustomScrollView(
+  slivers: [
+    SliverTelegramAppBar(
+      title: 'John Doe',
+      subTitle: 'Online',
+      imageUrl: 'https://example.com/avatar.jpg',
+      actions: [
+        TelegramActionButton(icon: Icons.call, label: 'Call'),
+        TelegramActionButton(icon: Icons.videocam, label: 'Video'),
+        TelegramActionButton(icon: Icons.search, label: 'Search'),
+        TelegramActionButton(icon: Icons.more_horiz, label: 'More'),
+      ],
+    ),
+    // Your content slivers here
+  ],
+)
+```
+
+For customization options, check out [`sliver_telegram_app_bar.dart`](lib/telegram/sliver_telegram_app_bar.dart).
+
+---
+
+## License
+
+MIT License
