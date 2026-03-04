@@ -8,7 +8,7 @@ A collection of beautifully crafted animations from popular apps, recreated in F
 A pixel-perfect recreation of Telegram's profile header animation featuring smooth transitions between collapsed, expanded, and full-screen states.
 
 <p align="center">
-  <img src="assets/previews/telegram_profile.gif" width="300" alt="Telegram Profile Animation"/>
+  <img src="previews/telegram_profile.gif" width="300" alt="Telegram Profile Animation"/>
 </p>
 
 ### Usage
@@ -44,7 +44,7 @@ For customization options, check out [`sliver_telegram_app_bar.dart`](lib/telegr
 A recreation of Blinkit's product browsing experience with fluid hero transitions, staggered grid exit animations, and an expandable product detail card.
 
 <p align="center">
-  <video src="video/blinkit_hero.mp4" width="300" autoplay loop muted playsinline></video>
+  <img src="previews/blinkit_hero.gif" width="300" alt="Blinkit Product Animation"/>
 </p>
 
 ### What's animated

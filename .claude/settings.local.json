@@ -4,7 +4,9 @@
       "Bash(flutter pub get:*)",
       "Bash(flutter analyze:*)",
       "Bash(ffmpeg:*)",
-      "Bash(brew:*)"
+      "Bash(brew:*)",
+      "Bash(git:*)",
+      "Bash(ffprobe:*)"
     ]
   }
 }
