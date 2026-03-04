@@ -4,6 +4,31 @@ A collection of beautifully crafted animations from popular apps, recreated in F
 
 ---
 
+## Blinkit Product Animation
+
+A recreation of Blinkit's product browsing experience with fluid hero transitions, staggered grid exit animations, and an expandable product detail card.
+
+<p align="center">
+  <video src="video/blinkit_hero.mp4" width="300" autoplay loop muted playsinline></video>
+</p>
+
+### What's animated
+
+- **Hero transition** — product image flies from the grid card to the detail page
+- **Grid exit** — all cards in the tapped row fly upward together; other rows follow with a staggered delay
+- **Detail card expansion** — card grows from partial to full screen as you scroll into the content
+- **Overscroll dismiss** — pull down past the top to collapse or dismiss the card with a bouncy curve
+- **Page swipe** — swipe between products on the detail page with adjacent cards peeking at the sides
+
+### Key files
+
+| File | Description |
+|---|---|
+| [`lib/blinkit/blinkit_page.dart`](lib/blinkit/blinkit_page.dart) | Product grid, stagger animation, hero source |
+| [`lib/blinkit/product_detail_page.dart`](lib/blinkit/product_detail_page.dart) | Detail card, expansion controller, hero destination |
+
+---
+
 ## Telegram Profile Animation
 
 A pixel-perfect recreation of Telegram's profile header animation featuring smooth transitions between collapsed, expanded, and full-screen states.

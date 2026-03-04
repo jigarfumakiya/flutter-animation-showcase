@@ -1,173 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animation_showcase/blinkit/blinkit_product.dart';
 import 'package:flutter_animation_showcase/blinkit/product_detail_page.dart';
 
-// ============================================================
-// MODEL
-// ============================================================
 
-class BlinkitProduct {
-  final String id;
-  final String name;
-  final String brand;
-  final String imageUrl;
-  final String quantity;
-  final double price;
-  final double? mrp;
-  final double rating;
-  final int ratingCount;
-  final int deliveryMins;
-  final int? discountPercent;
-  final bool isLowStock;
+class BlinkitPage extends StatefulWidget {
+  const BlinkitPage({super.key});
 
-  const BlinkitProduct({
-    required this.id,
-    required this.name,
-    required this.brand,
-    required this.imageUrl,
-    required this.quantity,
-    required this.price,
-    this.mrp,
-    required this.rating,
-    required this.ratingCount,
-    required this.deliveryMins,
-    this.discountPercent,
-    this.isLowStock = false,
-  });
+  @override
+  State<BlinkitPage> createState() => _BlinkitPageState();
 }
 
-// ============================================================
-// DATA
-// ============================================================
+class _BlinkitPageState extends State<BlinkitPage> {
+  late final Future<List<BlinkitProduct>> _productsFuture;
 
-final kBlinkitProducts = <BlinkitProduct>[
-  const BlinkitProduct(
-    id: '1',
-    name: 'Amul Vanilla Magic Ice Cream Tub',
-    brand: 'Amul',
-    imageUrl: 'https://picsum.photos/seed/icecream-amul/400/400',
-    quantity: '1 ltr',
-    price: 180,
-    rating: 4.4,
-    ratingCount: 64077,
-    deliveryMins: 11,
-  ),
-  const BlinkitProduct(
-    id: '2',
-    name: 'The Dairy Factory by Kwality Walls Vanilla Ice Cream Tub',
-    brand: 'Kwality Walls',
-    imageUrl: 'https://picsum.photos/seed/icecream-kwality/400/400',
-    quantity: '700 ml',
-    price: 131,
-    mrp: 145,
-    rating: 4.4,
-    ratingCount: 47360,
-    deliveryMins: 11,
-    discountPercent: 9,
-    isLowStock: true,
-  ),
-  const BlinkitProduct(
-    id: '3',
-    name: 'Kwality Walls Choco Vanilla Frozen Dessert',
-    brand: 'Kwality Walls',
-    imageUrl: 'https://picsum.photos/seed/icecream-choco/400/400',
-    quantity: '80 ml',
-    price: 30,
-    rating: 4.4,
-    ratingCount: 24482,
-    deliveryMins: 11,
-  ),
-  const BlinkitProduct(
-    id: '4',
-    name: 'Amul Gold Vanilla Magic Ice Cream Tub',
-    brand: 'Amul',
-    imageUrl: 'https://picsum.photos/seed/icecream-gold/400/400',
-    quantity: '1 ltr',
-    price: 210,
-    rating: 4.3,
-    ratingCount: 14053,
-    deliveryMins: 11,
-  ),
-  const BlinkitProduct(
-    id: '5',
-    name: 'Cream Bell Vanilla Frozen Dessert Sandwich',
-    brand: 'Cream Bell',
-    imageUrl: 'https://picsum.photos/seed/icecream-creambell/400/400',
-    quantity: '80 ml',
-    price: 30,
-    rating: 4.3,
-    ratingCount: 34267,
-    deliveryMins: 11,
-  ),
-  const BlinkitProduct(
-    id: '6',
-    name: 'Amul Vanilla Ice Cream Cup (No Added Sugar)',
-    brand: 'Amul',
-    imageUrl: 'https://picsum.photos/seed/icecream-cup/400/400',
-    quantity: '2 x 125 ml',
-    price: 69,
-    mrp: 70,
-    rating: 4.4,
-    ratingCount: 411,
-    deliveryMins: 11,
-  ),
-  const BlinkitProduct(
-    id: '7',
-    name: 'NIC Premium Vanilla Ice Cream',
-    brand: 'NIC',
-    imageUrl: 'https://picsum.photos/seed/icecream-nic/400/400',
-    quantity: '500 ml',
-    price: 249,
-    rating: 4.5,
-    ratingCount: 2341,
-    deliveryMins: 11,
-  ),
-  const BlinkitProduct(
-    id: '8',
-    name: 'Mother Dairy Vanilla Frozen Dessert',
-    brand: 'Mother Dairy',
-    imageUrl: 'https://picsum.photos/seed/icecream-mother/400/400',
-    quantity: '750 ml',
-    price: 165,
-    mrp: 180,
-    rating: 4.1,
-    ratingCount: 5678,
-    deliveryMins: 11,
-    discountPercent: 8,
-  ),
-  const BlinkitProduct(
-    id: '9',
-    name: 'Baskin Robbins Vanilla Flavour Ice Cream',
-    brand: 'Baskin Robbins',
-    imageUrl: 'https://picsum.photos/seed/icecream-baskin/400/400',
-    quantity: '500 ml',
-    price: 399,
-    rating: 4.6,
-    ratingCount: 9823,
-    deliveryMins: 11,
-  ),
-];
-
-// ============================================================
-// PAGE
-// ============================================================
-
-class BlinkitPage extends StatelessWidget {
-  const BlinkitPage({super.key});
+  @override
+  void initState() {
+    super.initState();
+    _productsFuture = BlinkitProductRepository.load();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: _ProductGrid(products: kBlinkitProducts),
+        child: FutureBuilder<List<BlinkitProduct>>(
+          future: _productsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(
+                child: CircularProgressIndicator(color: Color(0xFF0C831F)),
+              );
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Failed to load products',
+                  style: TextStyle(color: Colors.grey.shade400),
+                ),
+              );
+            }
+            return _ProductGrid(products: snapshot.data!);
+          },
+        ),
       ),
     );
   }
 }
 
-// ============================================================
-// PRODUCT GRID
-// ============================================================
 
 class _ProductGrid extends StatelessWidget {
   final List<BlinkitProduct> products;
@@ -199,25 +79,21 @@ class _ProductGrid extends StatelessWidget {
 
     if (secondaryAnim == null) return grid;
 
+    // RepaintBoundary lets the compositor move the grid layer without repainting
+    // every card on each frame of the secondary animation.
     return AnimatedBuilder(
       animation: secondaryAnim,
       builder: (ctx, child) {
-        // easeInCubic forward  = cards accelerate away upward
-        // reversed naturally becomes easeOutCubic = cards decelerate settling back
         final t = Curves.easeInCubic.transform(secondaryAnim.value);
         return Transform.translate(
           offset: Offset(0, -screenH * t),
           child: child,
         );
       },
-      child: grid,
+      child: RepaintBoundary(child: grid),
     );
   }
 }
-
-// ============================================================
-// PRODUCT CARD
-// ============================================================
 
 class _ProductCard extends StatelessWidget {
   final BlinkitProduct product;
@@ -439,6 +315,7 @@ class _ProductCard extends StatelessWidget {
   }
 
   void _openDetail(BuildContext context) {
+    precacheImage(NetworkImage(product.imageUrl), context);
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -451,20 +328,22 @@ class _ProductCard extends StatelessWidget {
             parent: animation,
             curve: Curves.easeOutCubic,
           );
+          final page = RepaintBoundary(child: child);
           return FadeTransition(
-            opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
-              CurvedAnimation(parent: animation, curve: const Interval(0.0, 0.5)),
+            opacity: CurvedAnimation(
+              parent: animation,
+              curve: const Interval(0.0, 0.5),
             ),
             child: SlideTransition(
               position: Tween<Offset>(
-                begin: const Offset(0, 0.18),
+                begin: const Offset(0, 0.10),
                 end: Offset.zero,
               ).animate(curved),
-              child: child,
+              child: page,
             ),
           );
         },
-        transitionDuration: const Duration(milliseconds: 380),
+        transitionDuration: const Duration(milliseconds: 420),
       ),
     );
   }

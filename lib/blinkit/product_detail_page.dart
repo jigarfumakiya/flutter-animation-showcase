@@ -1,7 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_animation_showcase/blinkit/blinkit_page.dart';
+import 'package:flutter_animation_showcase/blinkit/blinkit_product.dart';
 
 // ============================================================
 // PRODUCT DETAIL PAGE
@@ -38,7 +36,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
     _currentPage = widget.initialIndex;
     _expansionCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 320),
+      duration: const Duration(milliseconds: 400),
     );
     _pageCtrl = PageController(
       initialPage: widget.initialIndex,
@@ -58,8 +56,8 @@ class _ProductDetailPageState extends State<ProductDetailPage>
     if (!_isExpanded) {
       setState(() => _isExpanded = true);
       _expansionCtrl.animateTo(
-        1.0,
-        duration: const Duration(milliseconds: 320),
+        1.2,
+        duration: const Duration(milliseconds: 400),
         curve: Curves.easeOutCubic,
       );
     }
@@ -96,7 +94,6 @@ class _ProductDetailPageState extends State<ProductDetailPage>
           final bottomGap = _kBottomGap * (1.0 - t);
           final cornerR = _kCornerRadius * (1.0 - t);
           final topSafePadding = statusBarH * t;
-          // Animate card width: 95% of screen (peek) → 100% (full screen)
           final cardWidth =
               screenWidth * (_kViewportFraction + (1 - _kViewportFraction) * t);
 
@@ -195,7 +192,7 @@ class _ProductDetailCard extends StatefulWidget {
   final bool isExpanded;
   final double topSafePadding;
   final VoidCallback onScrolledIntoContent; // scroll down → expand
-  final VoidCallback onOverscrollDown;       // pull down past top → collapse/dismiss
+  final VoidCallback onOverscrollDown; // pull down past top → collapse/dismiss
 
   const _ProductDetailCard({
     super.key,
@@ -213,13 +210,13 @@ class _ProductDetailCard extends StatefulWidget {
 }
 
 class _ProductDetailCardState extends State<_ProductDetailCard> {
-  late final ScrollController _scrollCtrl;
+  final ScrollController _scrollCtrl = ScrollController();
+
   bool _overscrollHandled = false;
 
   @override
   void initState() {
     super.initState();
-    _scrollCtrl = ScrollController();
     _scrollCtrl.addListener(_onScroll);
   }
 
@@ -228,17 +225,17 @@ class _ProductDetailCardState extends State<_ProductDetailCard> {
     final px = _scrollCtrl.position.pixels;
 
     // Scroll DOWN into content → expand to full screen
-    if (px > 8 && !widget.isExpanded) {
+    if (px > 10 && !widget.isExpanded) {
       widget.onScrolledIntoContent();
     }
 
     // Pull DOWN past the top (overscroll) → collapse if expanded, dismiss if partial
-    if (px < -20 && !_overscrollHandled) {
+    if (px < -10 && !_overscrollHandled) {
       _overscrollHandled = true;
       widget.onOverscrollDown();
     }
 
-    if (px > -15) _overscrollHandled = false;
+    if (px > -5) _overscrollHandled = false;
   }
 
   @override
@@ -250,30 +247,23 @@ class _ProductDetailCardState extends State<_ProductDetailCard> {
   @override
   Widget build(BuildContext context) {
     final r = widget.cornerRadius;
-    return AnimatedBuilder(
-      animation: _scrollCtrl,
-      builder: (ctx, child) {
-        final px = _scrollCtrl.hasClients ? _scrollCtrl.position.pixels : 0.0;
-        // Translate card down proportional to overscroll (dampened by 0.5)
-        final dy = px < 0 ? (-px * 0.5).clamp(0.0, 260.0) : 0.0;
-        return Transform.translate(offset: Offset(0, dy), child: child);
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(r),
-        child: Stack(
-          children: [
-            CustomScrollView(
-              controller: _scrollCtrl,
-              physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics(),
-              ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(r),
+      child: Stack(
+        children: [
+          CustomScrollView(
+            controller: _scrollCtrl,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
             slivers: [
               SliverToBoxAdapter(child: _buildHeroImage(context)),
               SliverToBoxAdapter(child: _buildProductInfo()),
+              const SliverToBoxAdapter(child: SizedBox(height: 8)),
               SliverToBoxAdapter(child: _buildBrandSection()),
+              const SliverToBoxAdapter(child: SizedBox(height: 8)),
               SliverToBoxAdapter(child: _buildSimilarProducts()),
-              SliverToBoxAdapter(child: _buildSimilarProducts()),
-              SliverToBoxAdapter(child: _buildSimilarProducts()),
+              const SliverToBoxAdapter(child: SizedBox(height: 8)),
               SliverToBoxAdapter(child: _buildSimilarProducts()),
               // Space so content is not hidden behind the floating bottom bar
               const SliverToBoxAdapter(child: SizedBox(height: 90)),
@@ -290,8 +280,7 @@ class _ProductDetailCardState extends State<_ProductDetailCard> {
           Positioned(top: 0, left: 0, right: 0, child: _buildTopBar(context)),
         ],
       ),
-    ),
-  );
+    );
   }
 
   Widget _buildTopBar(BuildContext context) {
@@ -300,35 +289,35 @@ class _ProductDetailCardState extends State<_ProductDetailCard> {
       child: SizedBox(
         height: kToolbarHeight,
         child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(width: 4),
-          Container(
-            margin: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.35),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(
-                Icons.keyboard_arrow_down,
-                color: Colors.white,
-                size: 22,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(width: 4),
+            Container(
+              margin: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.35),
+                shape: BoxShape.circle,
               ),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-              onPressed: () => Navigator.pop(context),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white,
+                  size: 22,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                onPressed: () => Navigator.pop(context),
+              ),
             ),
-          ),
-          const Spacer(),
-          _TopActionButton(icon: Icons.favorite_border),
-          _TopActionButton(icon: Icons.search),
-          _TopActionButton(icon: Icons.ios_share),
-          const SizedBox(width: 8),
-        ],
+            const Spacer(),
+            _TopActionButton(icon: Icons.favorite_border),
+            _TopActionButton(icon: Icons.search),
+            _TopActionButton(icon: Icons.ios_share),
+            const SizedBox(width: 8),
+          ],
+        ),
       ),
-    ),
-  );
+    );
   }
 
   // ---- Hero image (full-width, top of scroll) ----
@@ -347,157 +336,138 @@ class _ProductDetailCardState extends State<_ProductDetailCard> {
       ),
     );
     if (!widget.useHero) return imageChild;
-    return Hero(
-      tag: 'blinkit_product_${widget.product.id}',
-      child: imageChild,
-    );
+    return Hero(tag: 'blinkit_product_${widget.product.id}', child: imageChild);
   }
-
-  // ---- Image sliver (custom pinned header) ----
-
-  Widget _buildImageSliver(BuildContext context) {
-    final expandedHeight = MediaQuery.of(context).size.height * 0.43;
-    return SliverPersistentHeader(
-      pinned: false,
-      delegate: _ImageHeaderDelegate(
-        product: widget.product,
-        useHero: widget.useHero,
-        expandedHeight: expandedHeight,
-      ),
-    );
-  }
-
-  // ---- Loaded product info ----
 
   Widget _buildProductInfo() {
     return Container(
       color: Colors.grey.shade900,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Delivery + dots row
-          Row(
-            children: [
-              _DeliveryBadge(mins: widget.product.deliveryMins),
-              const Spacer(),
-              ...List.generate(4, (i) {
-                return Container(
-                  width: i == 0 ? 14 : 6,
-                  height: 6,
-                  margin: const EdgeInsets.only(left: 3),
-                  decoration: BoxDecoration(
-                    color: i == 0 ? Colors.white : Colors.grey.shade600,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                );
-              }),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Product name
-          Text(
-            widget.product.name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              height: 1.3,
-            ),
-          ),
-
-          if (widget.product.isLowStock) ...[
-            const SizedBox(height: 4),
-            const Text(
-              'Only 3 left',
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-          const SizedBox(height: 8),
-
-          Text(
-            widget.product.quantity,
-            style: TextStyle(color: Colors.grey.shade300, fontSize: 14),
-          ),
-          const SizedBox(height: 6),
-
-          // Price row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                '₹${widget.product.price.toInt()}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              if (widget.product.mrp != null) ...[
-                const SizedBox(width: 8),
-                Text(
-                  'MRP ₹${widget.product.mrp!.toInt()}',
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 14,
-                    decoration: TextDecoration.lineThrough,
-                    decorationColor: Colors.grey.shade500,
-                  ),
-                ),
-                if (widget.product.discountPercent != null) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Delivery + dots row
+            Row(
+              children: [
+                _DeliveryBadge(mins: widget.product.deliveryMins),
+                const Spacer(),
+                ...List.generate(4, (i) {
+                  return Container(
+                    width: i == 0 ? 14 : 6,
+                    height: 6,
+                    margin: const EdgeInsets.only(left: 3),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1565C0),
-                      borderRadius: BorderRadius.circular(4),
+                      color: i == 0 ? Colors.white : Colors.grey.shade600,
+                      borderRadius: BorderRadius.circular(3),
                     ),
-                    child: Text(
-                      '${widget.product.discountPercent}% OFF',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+                  );
+                }),
               ],
-            ],
-          ),
-          const SizedBox(height: 14),
-          Divider(color: Colors.grey.shade800, height: 1),
-          const SizedBox(height: 14),
+            ),
+            const SizedBox(height: 12),
 
-          // View product details
-          Row(
-            children: [
+            // Product name
+            Text(
+              widget.product.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                height: 1.3,
+              ),
+            ),
+
+            if (widget.product.isLowStock) ...[
+              const SizedBox(height: 4),
               const Text(
-                'View product details',
+                'Only 3 left',
                 style: TextStyle(
-                  color: Color(0xFF0C831F),
-                  fontSize: 14,
+                  color: Colors.red,
+                  fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(width: 4),
-              const Icon(
-                Icons.keyboard_arrow_down,
-                color: Color(0xFF0C831F),
-                size: 18,
-              ),
             ],
-          ),
-        ],
-      ),
+            const SizedBox(height: 8),
+
+            Text(
+              widget.product.quantity,
+              style: TextStyle(color: Colors.grey.shade300, fontSize: 14),
+            ),
+            const SizedBox(height: 6),
+
+            // Price row
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  '₹${widget.product.price.toInt()}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (widget.product.mrp != null) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    'MRP ₹${widget.product.mrp!.toInt()}',
+                    style: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontSize: 14,
+                      decoration: TextDecoration.lineThrough,
+                      decorationColor: Colors.grey.shade500,
+                    ),
+                  ),
+                  if (widget.product.discountPercent != null) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1565C0),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '${widget.product.discountPercent}% OFF',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ],
+            ),
+            const SizedBox(height: 14),
+            Divider(color: Colors.grey.shade800, height: 1),
+            const SizedBox(height: 14),
+
+            // View product details
+            Row(
+              children: [
+                const Text(
+                  'View product details',
+                  style: TextStyle(
+                    color: Color(0xFF0C831F),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Color(0xFF0C831F),
+                  size: 18,
+                ),
+              ],
+            ),
+          ],
+        ),
     );
   }
 
@@ -505,43 +475,42 @@ class _ProductDetailCardState extends State<_ProductDetailCard> {
 
   Widget _buildBrandSection() {
     return Container(
-      margin: const EdgeInsets.only(top: 8),
       color: Colors.grey.shade900,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade700,
-              borderRadius: BorderRadius.circular(10),
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade700,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.store, color: Colors.white, size: 22),
             ),
-            child: const Icon(Icons.store, color: Colors.white, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.product.brand,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.product.brand,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Explore all products',
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Icon(Icons.chevron_right, color: Colors.grey.shade400),
-        ],
-      ),
+                const SizedBox(height: 2),
+                Text(
+                  'Explore all products',
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                ),
+              ],
+            ),
+            const Spacer(),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400),
+          ],
+        ),
     );
   }
 
@@ -549,128 +518,122 @@ class _ProductDetailCardState extends State<_ProductDetailCard> {
 
   Widget _buildSimilarProducts() {
     return Container(
-      margin: const EdgeInsets.only(top: 8),
       color: Colors.grey.shade900,
-      padding: const EdgeInsets.fromLTRB(16, 16, 0, 16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Text(
-              'Similar products',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(right: 16),
+              child: Text(
+                'Similar products',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 188,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: 5,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (_, i) => _SimilarProductCard(index: i),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 188,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: 5,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (_, i) => _SimilarProductCard(index: i),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
     );
   }
 
   // ---- Floating blur "Add to cart" bar ----
 
   Widget _buildBlurBottomBar() {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade900.withValues(alpha: 0.6),
-            border: Border(
-              top: BorderSide(
-                color: Colors.white.withValues(alpha: 0.08),
-                width: 0.5,
-              ),
-            ),
+    // No BackdropFilter — it forces saveLayer every frame, causing jank during
+    // the hero animation. A solid semi-opaque background is equally readable
+    // and fully GPU-friendly.
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade900.withValues(alpha: 0.97),
+        border: Border(
+          top: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 0.5,
           ),
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          child: Row(
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: Row(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+              Text(
+                widget.product.quantity,
+                style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+              ),
+              Row(
                 children: [
                   Text(
-                    widget.product.quantity,
-                    style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                    '₹${widget.product.price.toInt()}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        '₹${widget.product.price.toInt()}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  if (widget.product.mrp != null) ...[
+                    const SizedBox(width: 6),
+                    Text(
+                      'MRP ₹${widget.product.mrp!.toInt()}',
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 12,
+                        decoration: TextDecoration.lineThrough,
+                        decorationColor: Colors.grey.shade500,
                       ),
-                      if (widget.product.mrp != null) ...[
-                        const SizedBox(width: 6),
-                        Text(
-                          'MRP ₹${widget.product.mrp!.toInt()}',
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 12,
-                            decoration: TextDecoration.lineThrough,
-                            decorationColor: Colors.grey.shade500,
-                          ),
-                        ),
-                      ],
-                      if (widget.product.discountPercent != null) ...[
-                        const SizedBox(width: 6),
-                        Text(
-                          '${widget.product.discountPercent}% OFF',
-                          style: const TextStyle(
-                            color: Color(0xFF4FC3F7),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  Text(
-                    'Inclusive of all taxes',
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
-                  ),
+                    ),
+                  ],
+                  if (widget.product.discountPercent != null) ...[
+                    const SizedBox(width: 6),
+                    Text(
+                      '${widget.product.discountPercent}% OFF',
+                      style: const TextStyle(
+                        color: Color(0xFF4FC3F7),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ],
               ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 14,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0C831F),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'Add to cart',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+              Text(
+                'Inclusive of all taxes',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
               ),
             ],
           ),
-        ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0C831F),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text(
+              'Add to cart',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -834,104 +797,6 @@ class _SimilarProductCard extends StatelessWidget {
       ),
     );
   }
-}
-
-// ============================================================
-// IMAGE HEADER DELEGATE
-// Image fills the entire header at every scroll offset.
-// When collapsed to toolbar height the image shows as background.
-// ============================================================
-
-class _ImageHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final BlinkitProduct product;
-  final bool useHero;
-  final double expandedHeight;
-
-  const _ImageHeaderDelegate({
-    required this.product,
-    required this.useHero,
-    required this.expandedHeight,
-  });
-
-  @override
-  double get minExtent => kToolbarHeight;
-
-  @override
-  double get maxExtent => expandedHeight;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    // 0 = fully expanded, 1 = fully collapsed
-    final t = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
-
-    final imageWidget = Image.network(
-      product.imageUrl,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => Container(
-        color: Colors.grey.shade800,
-        child: const Icon(Icons.image, color: Colors.grey, size: 60),
-      ),
-    );
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Base dark background
-        Container(color: Colors.grey.shade900),
-
-        // Product image — fills the entire header at all scroll positions
-        Positioned.fill(
-          child: useHero
-              ? Hero(tag: 'blinkit_product_${product.id}', child: imageWidget)
-              : imageWidget,
-        ),
-
-        // Top gradient — darkens image behind buttons; gets stronger when collapsed
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withValues(alpha: 0.5 + 0.35 * t),
-                Colors.transparent,
-              ],
-              stops: const [0.0, 0.65],
-            ),
-          ),
-        ),
-
-        // Bottom gradient — bleeds into content section (only when expanded)
-        if (t < 0.95)
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 64,
-            child: Opacity(
-              opacity: (1.0 - t).clamp(0.0, 1.0),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [Colors.grey.shade900, Colors.transparent],
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  @override
-  bool shouldRebuild(_ImageHeaderDelegate old) =>
-      product != old.product || useHero != old.useHero;
 }
 
 // ============================================================

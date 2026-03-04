@@ -1,0 +1,107 @@
+[
+  {
+    "id": "1",
+    "name": "Amul Vanilla Magic Ice Cream Tub",
+    "brand": "Amul",
+    "imageUrl": "https://picsum.photos/seed/icecream-amul/400/400",
+    "quantity": "1 ltr",
+    "price": 180,
+    "rating": 4.4,
+    "ratingCount": 64077,
+    "deliveryMins": 11
+  },
+  {
+    "id": "2",
+    "name": "The Dairy Factory by Kwality Walls Vanilla Ice Cream Tub",
+    "brand": "Kwality Walls",
+    "imageUrl": "https://picsum.photos/seed/icecream-kwality/400/400",
+    "quantity": "700 ml",
+    "price": 131,
+    "mrp": 145,
+    "rating": 4.4,
+    "ratingCount": 47360,
+    "deliveryMins": 11,
+    "discountPercent": 9,
+    "isLowStock": true
+  },
+  {
+    "id": "3",
+    "name": "Kwality Walls Choco Vanilla Frozen Dessert",
+    "brand": "Kwality Walls",
+    "imageUrl": "https://picsum.photos/seed/icecream-choco/400/400",
+    "quantity": "80 ml",
+    "price": 30,
+    "rating": 4.4,
+    "ratingCount": 24482,
+    "deliveryMins": 11
+  },
+  {
+    "id": "4",
+    "name": "Amul Gold Vanilla Magic Ice Cream Tub",
+    "brand": "Amul",
+    "imageUrl": "https://picsum.photos/seed/icecream-gold/400/400",
+    "quantity": "1 ltr",
+    "price": 210,
+    "rating": 4.3,
+    "ratingCount": 14053,
+    "deliveryMins": 11
+  },
+  {
+    "id": "5",
+    "name": "Cream Bell Vanilla Frozen Dessert Sandwich",
+    "brand": "Cream Bell",
+    "imageUrl": "https://picsum.photos/seed/icecream-creambell/400/400",
+    "quantity": "80 ml",
+    "price": 30,
+    "rating": 4.3,
+    "ratingCount": 34267,
+    "deliveryMins": 11
+  },
+  {
+    "id": "6",
+    "name": "Amul Vanilla Ice Cream Cup (No Added Sugar)",
+    "brand": "Amul",
+    "imageUrl": "https://picsum.photos/seed/icecream-cup/400/400",
+    "quantity": "2 x 125 ml",
+    "price": 69,
+    "mrp": 70,
+    "rating": 4.4,
+    "ratingCount": 411,
+    "deliveryMins": 11
+  },
+  {
+    "id": "7",
+    "name": "NIC Premium Vanilla Ice Cream",
+    "brand": "NIC",
+    "imageUrl": "https://picsum.photos/seed/icecream-nic/400/400",
+    "quantity": "500 ml",
+    "price": 249,
+    "rating": 4.5,
+    "ratingCount": 2341,
+    "deliveryMins": 11
+  },
+  {
+    "id": "8",
+    "name": "Mother Dairy Vanilla Frozen Dessert",
+    "brand": "Mother Dairy",
+    "imageUrl": "https://picsum.photos/seed/icecream-mother/400/400",
+    "quantity": "750 ml",
+    "price": 165,
+    "mrp": 180,
+    "rating": 4.1,
+    "ratingCount": 5678,
+    "deliveryMins": 11,
+    "discountPercent": 8
+  },
+  {
+    "id": "9",
+    "name": "Baskin Robbins Vanilla Flavour Ice Cream",
+    "brand": "Baskin Robbins",
+    "imageUrl": "https://picsum.photos/seed/icecream-baskin/400/400",
+    "quantity": "500 ml",
+    "price": 399,
+    "rating": 4.6,
+    "ratingCount": 9823,
+    "deliveryMins": 11
+  }
+]
